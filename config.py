@@ -4,5 +4,5 @@ body_image = None
 emotion_score = None
 symmetry_score = None
 body_score = None
-gender = None
+gender = "male"
 error_msg= None
