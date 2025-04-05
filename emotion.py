@@ -122,12 +122,11 @@ def main():
     #load image from file
     # file_path = 'test_faces/smile/1.jpg' 
     image = config.happy_face_image
-    if image is None:
-        raise ValueError(f"Could not load image from {file_path}")
     frame = image
 
-    config.emotion_score = get_face_score(image)
-    config.symmetry_score = get_symmetry_score(image, frame, draw=True)
+    emotion_score = get_face_score(image)
+    symmetry_score = get_symmetry_score(image, frame, draw=True)
+    config.emotion_score = 0.85 * emotion_score + 0.15 * (symmetry_score + 20)
     # config.face_attractiveness = face_score
 
     # # Add score text and display
