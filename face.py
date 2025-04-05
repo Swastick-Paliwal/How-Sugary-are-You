@@ -5,17 +5,17 @@ import numpy as np
 import config
 
 # capture image from webcam
-cap = cv2.VideoCapture(0)
-ret, frame = cap.read()
-cap.release()
-image = frame if ret else None
+# cap = cv2.VideoCapture(0)
+# ret, frame = cap.read()
+# cap.release()
+# image = frame if ret else None
 
 #load image from file
-# file_path = 'test_faces/4.jpg' 
-# image = cv2.imread(file_path)
-# if image is None:
-#     raise ValueError(f"Could not load image from {file_path}")
-# frame = image
+file_path = 'test_faces/smile/2.jpg' 
+image = cv2.imread(file_path)
+if image is None:
+    raise ValueError(f"Could not load image from {file_path}")
+frame = image
 
 
 def get_face_score(image):
@@ -28,17 +28,31 @@ def get_face_score(image):
         else:
             emotions = result['emotion']
 
-        happy_score = emotions.get('happy', 0)
-        neutral_score = emotions.get('neutral', 0)
-        sad_score = emotions.get('sad', 0)
+        happy = emotions.get('happy', 0)
+        neutral = emotions.get('neutral', 0)
+        surprise = emotions.get('surprise', 0)
+        sad = emotions.get('sad', 0)
+        angry = emotions.get('angry', 0)
+        disgust = emotions.get('disgust', 0)
+        fear = emotions.get('fear', 0)
+        
 
-        # Simple proxy formula
-        score = min((happy_score + 0.5 * neutral_score - sad_score), 100)
+        score = (
+            1.0 * happy +
+            0.5 * neutral +
+            0.3 * surprise -
+            1.0 * sad -
+            1.0 * angry -
+            1.0 * disgust -
+            1.0 * fear
+        )
+
         print(f"Emotions: {emotions} => Score: {score}")
         
-        return score
+        return max(0,min(score,100))
     except Exception as e:
         print(f"Error during analysis: {e}")
+        config.error_msg = f"Error during analysis: {e}"
         return -1  # fallback
     
 def linear_score(normalized_error, min_error=0.26, max_error=0.36):
@@ -54,14 +68,10 @@ def linear_score(normalized_error, min_error=0.26, max_error=0.36):
 
 def get_symmetry_score(image, frame=None, draw=True, curve_sharpness=8, curve_offset=0.02):
     try:
-        # face_landmarks_list = face_recognition.face_landmarks(image)
-        # if not face_landmarks_list:
-        #     print("No face landmarks found.")
-        #     return 50
         face_landmarks_list = face_recognition.face_landmarks(image)
-        print(f"[DEBUG] Found {len(face_landmarks_list)} face(s)")
         if not face_landmarks_list:
             print("No face landmarks found.")
+            config.error_msg = "No face landmarks found."
             return -1
 
 
@@ -88,13 +98,11 @@ def get_symmetry_score(image, frame=None, draw=True, curve_sharpness=8, curve_of
 
         if normalization_factor == 0:
             print("Invalid face region (zero bounding box).")
+            config.error_msg = "Invalid face region (zero bounding box)."
             return -1
 
         symmetry_error = np.linalg.norm(keypoints - flipped_points, axis=1).mean()
         normalized_error = symmetry_error / normalization_factor
-
-        print(f"[DEBUG] symmetry_error: {symmetry_error:.4f}")
-        print(f"[DEBUG] normalized_error: {normalized_error:.4f}")
 
         # When normalized_error ~0.26, score ~100
         # As error to 0.36, score approaches 50
@@ -114,15 +122,17 @@ def get_symmetry_score(image, frame=None, draw=True, curve_sharpness=8, curve_of
 
     except Exception as e:
         print(f"Error in symmetry score: {e}")
+        config.error_msg = f"Error in symmetry score: {e}"
         return -1
 
-emotion_score = get_face_score(image)
-symmetry_score = get_symmetry_score(image, frame, draw=True)
-face_score = 0 * emotion_score + 1 * symmetry_score
+config.emotion_score = get_face_score(image)
+config.symmetry_score = get_symmetry_score(image, frame, draw=True)
 # config.face_attractiveness = face_score
 
 # Add score text and display
-cv2.putText(frame, f"Attractiveness: {int(face_score)}%", (50, 50), 
+cv2.putText(frame, f"Attractiveness: {int(config.emotion_score)}%", (50, 50), 
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+cv2.putText(frame, f"symmetry: {int(config.symmetry_score)}%", (50, 50), 
             cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
 cv2.imshow("Result", frame)
 cv2.waitKey(0)
