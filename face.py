@@ -11,7 +11,7 @@ import config
 # image = frame if ret else None
 
 #load image from file
-file_path = 'test_faces/smile/2.jpg' 
+file_path = 'test_faces/smile/1.jpg' 
 image = cv2.imread(file_path)
 if image is None:
     raise ValueError(f"Could not load image from {file_path}")
@@ -133,7 +133,7 @@ config.symmetry_score = get_symmetry_score(image, frame, draw=True)
 cv2.putText(frame, f"Attractiveness: {int(config.emotion_score)}%", (50, 50), 
             cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
 cv2.putText(frame, f"symmetry: {int(config.symmetry_score)}%", (50, 50), 
-            cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)
 cv2.imshow("Result", frame)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
