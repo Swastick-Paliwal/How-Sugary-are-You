@@ -3,45 +3,7 @@ from deepface import DeepFace
 import face_recognition  
 import numpy as np
 import config
-
-
-def get_face_score(image):
-    try:
-        result = DeepFace.analyze(image, actions=['emotion'], enforce_detection=False)
-        
-        # Handle both list and dict formats
-        if isinstance(result, list):
-            emotions = result[0]['emotion']
-        else:
-            emotions = result['emotion']
-
-        happy = emotions.get('happy', 0)
-        neutral = emotions.get('neutral', 0)
-        surprise = emotions.get('surprise', 0)
-        sad = emotions.get('sad', 0)
-        angry = emotions.get('angry', 0)
-        disgust = emotions.get('disgust', 0)
-        fear = emotions.get('fear', 0)
-        
-
-        score = (
-            1.0 * happy +
-            0.5 * neutral +
-            0.3 * surprise -
-            1.0 * sad -
-            1.0 * angry -
-            1.0 * disgust -
-            1.0 * fear
-        )
-
-        print(f"Emotions: {emotions} => Score: {score}")
-        
-        return max(0,min(score,100))
-    except Exception as e:
-        print(f"Error during analysis: {e}")
-        config.error_msg = f"Error during analysis: {e}"
-        return -1  # fallback
-    
+   
 def linear_score(normalized_error, min_error=0.26, max_error=0.36):
     """
     Linearly maps normalized_error to a score between 50 and 100%.
@@ -119,8 +81,8 @@ def main():
     # cap.release()
     # image = frame if ret else None
 
-    #load image from file
-    # file_path = 'test_faces/smile/1.jpg' 
+    # #load image from file
+    # # file_path = 'test_faces/smile/1.jpg' 
     image = config.serious_face_image
     frame = image
 

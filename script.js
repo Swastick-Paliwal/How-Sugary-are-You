@@ -37,10 +37,10 @@ async function captureImage(type) {
         video.play();
 
         // Wait a tiny bit for camera to warm up
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // ✅ Begin countdown
-        let count = 5;
+        let count = 1;
         countdown.innerText = count;
         countdown.style.display = "block";
 
@@ -103,7 +103,7 @@ function analyzeImages() {
     };
 
     // Send images to backend for analysis
-    fetch('http://localhost:5000/analyze_images', {
+    fetch('http://localhost:7000/analyze_images', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

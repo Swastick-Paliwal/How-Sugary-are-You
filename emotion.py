@@ -5,7 +5,7 @@ import numpy as np
 import config
 
 
-def get_face_score(image):
+def get_emotion_score(image):
     try:
         result = DeepFace.analyze(image, actions=['emotion'], enforce_detection=False)
         
@@ -124,7 +124,7 @@ def main():
     image = config.happy_face_image
     frame = image
 
-    emotion_score = get_face_score(image)
+    emotion_score = get_emotion_score(image)
     symmetry_score = get_symmetry_score(image, frame, draw=True)
     config.emotion_score = 0.85 * emotion_score + 0.15 * (symmetry_score + 20)
     # config.face_attractiveness = face_score
