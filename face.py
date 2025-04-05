@@ -4,19 +4,6 @@ import face_recognition
 import numpy as np
 import config
 
-# capture image from webcam
-# cap = cv2.VideoCapture(0)
-# ret, frame = cap.read()
-# cap.release()
-# image = frame if ret else None
-
-#load image from file
-file_path = 'test_faces/smile/1.jpg' 
-image = cv2.imread(file_path)
-if image is None:
-    raise ValueError(f"Could not load image from {file_path}")
-frame = image
-
 
 def get_face_score(image):
     try:
@@ -125,15 +112,32 @@ def get_symmetry_score(image, frame=None, draw=True, curve_sharpness=8, curve_of
         config.error_msg = f"Error in symmetry score: {e}"
         return -1
 
-config.emotion_score = get_face_score(image)
-config.symmetry_score = get_symmetry_score(image, frame, draw=True)
-# config.face_attractiveness = face_score
+def main():
+    # capture image from webcam
+    # cap = cv2.VideoCapture(0)
+    # ret, frame = cap.read()
+    # cap.release()
+    # image = frame if ret else None
 
-# Add score text and display
-cv2.putText(frame, f"Attractiveness: {int(config.emotion_score)}%", (50, 50), 
-            cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-cv2.putText(frame, f"symmetry: {int(config.symmetry_score)}%", (50, 50), 
-            cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)
-cv2.imshow("Result", frame)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    #load image from file
+    # file_path = 'test_faces/smile/1.jpg' 
+    image = config.happy_face_image
+    if image is None:
+        raise ValueError(f"Could not load image from {file_path}")
+    frame = image
+
+    config.emotion_score = get_face_score(image)
+    config.symmetry_score = get_symmetry_score(image, frame, draw=True)
+    # config.face_attractiveness = face_score
+
+    # # Add score text and display
+    # cv2.putText(frame, f"Attractiveness: {int(config.emotion_score)}%", (50, 50), 
+    #             cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+    # cv2.putText(frame, f"symmetry: {int(config.symmetry_score)}%", (50, 50), 
+    #             cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)
+    # cv2.imshow("Result", frame)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()

@@ -4,6 +4,7 @@ import numpy as np
 import time
 import config
 import base64
+import face
 
 # Page setup
 st.set_page_config(page_title="Sugahhhh", layout="centered")
@@ -185,17 +186,14 @@ if config.body_image is not None:
 # Placeholder for results (to be integrated)
 # ---------------------------
 if config.happy_face_image is not None and config.happy_face_image is not None and config.body_image is not None:
+    face.main()
     st.success("All three images captured successfully!")
     st.write(f"Selected Gender: **{config.gender}**")
 
-    # MOCK CALL TO TEAMMATE FUNCTIONS (replace later)
-    # from face_model import get_face_score
-    # from body_model import get_body_score
-    #
-    # face_attractiveness = get_face_score(config.face_image)
+    st.write(f"Emotion: {config.emotion_score}/n Symmetry: {config.symmetry_score}")
     # body_attractiveness = get_body_score(config.body_image)
     #
     # st.metric("Face Score", f"{face_attractiveness}%")
     # st.metric("Body Score", f"{body_attractiveness}%")
     # overall = (face_attractiveness + body_attractiveness) // 2
-    # st.title(f"💯 Overall Attractiveness: {overall}%")
+    # st.title(f"Overall Attractiveness: {overall}%")
