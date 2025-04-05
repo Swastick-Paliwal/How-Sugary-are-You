@@ -38,7 +38,7 @@ def analyze_images():
     if config.serious_face_image is not None:
         symmetry.main()  # Run symmetry analysis
     if config.body_image is not None:
-        config.body_score = 88  # Your body analysis function here
+        body.main() # Run body analysis
 
     return jsonify({
         'emotion_score': config.emotion_score,

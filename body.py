@@ -191,35 +191,36 @@ def analyze_image(frame):
         if full_body_visible:
             proportions = calculate_body_proportions(landmarks)
             body_attractiveness = calculate_body_attractiveness(proportions)
-            
+            config.body_score = body_attractiveness
+
             # Draw results with taller box for 4 ratios
-            overlay = frame.copy()
-            cv2.rectangle(overlay, (5, 5), (300, 210), box_color, -1)  # Increased height
-            cv2.addWeighted(overlay, box_alpha, frame, 1 - box_alpha, 0, frame)
+            # overlay = frame.copy()
+            # cv2.rectangle(overlay, (5, 5), (300, 210), box_color, -1)  # Increased height
+            # cv2.addWeighted(overlay, box_alpha, frame, 1 - box_alpha, 0, frame)
             
-            # Header
-            cv2.putText(frame, "BODY ANALYSIS", (10, 30), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, header_color, 2)
+            # # Header
+            # cv2.putText(frame, "BODY ANALYSIS", (10, 30), 
+            #            cv2.FONT_HERSHEY_SIMPLEX, 0.7, header_color, 2)
             
-            # Score
-            score_color = (0, min(255, body_attractiveness * 2.55), 
-                         min(255, (100 - body_attractiveness) * 2.55))
-            cv2.putText(frame, f"Score: {body_attractiveness:.4f}%", (10, 60), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.9, score_color, 2)
+            # # Score
+            # score_color = (0, min(255, body_attractiveness * 2.55), 
+            #              min(255, (100 - body_attractiveness) * 2.55))
+            # cv2.putText(frame, f"Score: {body_attractiveness:.4f}%", (10, 60), 
+            #            cv2.FONT_HERSHEY_SIMPLEX, 0.9, score_color, 2)
             
-            # All four ratios
-            cv2.putText(frame, f"Shoulder/Waist: {proportions['shoulder_to_waist_ratio']:.2f}", 
-                       (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
-            cv2.putText(frame, f"Waist/Hip: {proportions['waist_to_hip_ratio']:.2f}", 
-                       (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
-            cv2.putText(frame, f"Leg/Height: {proportions['leg_to_height_ratio']:.2f}", 
-                       (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
-            cv2.putText(frame, f"Torso/Leg: {proportions['torso_to_leg_ratio']:.2f}", 
-                       (10, 180), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
+            # # All four ratios
+            # cv2.putText(frame, f"Shoulder/Waist: {proportions['shoulder_to_waist_ratio']:.2f}", 
+            #            (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
+            # cv2.putText(frame, f"Waist/Hip: {proportions['waist_to_hip_ratio']:.2f}", 
+            #            (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
+            # cv2.putText(frame, f"Leg/Height: {proportions['leg_to_height_ratio']:.2f}", 
+            #            (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
+            # cv2.putText(frame, f"Torso/Leg: {proportions['torso_to_leg_ratio']:.2f}", 
+            #            (10, 180), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
             
-            cv2.imshow('Body Analysis', frame)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            # cv2.imshow('Body Analysis', frame)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
             
             return body_attractiveness
         else:
@@ -237,9 +238,11 @@ def main():
         # frame = cv2.imread(image_path)
 
         # from webcam
-        cap = cv2.VideoCapture(1)
-        ret, frame = cap.read()
-        cap.release()
+        # cap = cv2.VideoCapture(0)
+        # ret, frame = cap.read()
+        # cap.release()
+
+        frame = config.body_image
 
         if not hasattr(config, 'gender') or config.gender not in ['male', 'female']:
             config.gender = 'female'
