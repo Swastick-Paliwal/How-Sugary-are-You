@@ -3,11 +3,78 @@ import cv2
 import numpy as np
 import time
 import config
+import base64
 
 # Page setup
 st.set_page_config(page_title="Sugahhhh", layout="centered")
 st.title("How 'Sugary' are You 😏")
 st.caption("Upload your pics or use the webcam to get an AI-generated attractiveness score!")
+
+def get_base64(file_path):
+    with open(file_path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+def place_logo():
+    logo_data = get_base64("logo.png")  # Change to your image file
+    st.markdown(f"""
+        <style>
+        .custom-logo {{
+            position: fixed;
+            top: 15px;
+            left: 20px;
+            z-index: 1000;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.3);
+        }}
+        </style>
+        <img src="data:image/png;base64,{logo_data}" class="custom-logo">
+    """, unsafe_allow_html=True)
+
+place_logo()
+
+st.markdown("""
+    <style>
+    /* Hide Streamlit's default menu and footer */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+    <style>
+    div.stButton > button:first-child {
+        background-color: rgb(245, 132, 188);
+        color: white;
+        font-weight: bold;
+        border-radius: 12px;
+        padding: 10px 20px;
+    }
+    div.stButton > button:first-child:hover {
+        background-color: deeppink;
+        color: white;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# ---------------------------
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: linear-gradient(to bottom right, #2b1055, #7597de);
+        background-attachment: fixed;
+        color: white;
+        font-family: 'Arial', sans-serif;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # ---------------------------
 # Gender selection
@@ -61,22 +128,40 @@ def read_image(file_bytes):
     return image
 
 # ---------------------------
-# Face image upload/capture
+# Happy Face image upload/capture
 # ---------------------------
-st.subheader("Capture or Upload Your Face Image")
+st.subheader("Capture or Upload Your Happy Face Image")
 face_col1, face_col2 = st.columns(2)
 
 with face_col1:
-    uploaded_face = st.file_uploader("Upload a face image", key="face", type=["jpg", "jpeg", "png"])
+    uploaded_happy_face = st.file_uploader("Upload a happy face image", key="happy_face", type=["jpg", "jpeg", "png"])
 with face_col2:
-    if st.button("📸 Capture Face from Webcam"):
-        config.face_image = capture_from_webcam_live_preview("Capturing FACE")
+    if st.button("📸 Capture from Webcam", key="capture_happy"):
+        config.happy_face_image = capture_from_webcam_live_preview("Capturing FACE")
 
-if uploaded_face is not None:
-    config.face_image = read_image(uploaded_face.read())
+if uploaded_happy_face is not None:
+    config.happy_face_image = read_image(uploaded_happy_face.read())
 
-if config.face_image is not None:
-    st.image(cv2.cvtColor(config.face_image, cv2.COLOR_BGR2RGB), caption="Face Image", use_container_width=True)
+if config.happy_face_image is not None:
+    st.image(cv2.cvtColor(config.happy_face_image, cv2.COLOR_BGR2RGB), caption="Happy Face Image", use_container_width=True)
+
+# ---------------------------
+# Serious Face image upload/capture
+# ---------------------------
+st.subheader("Capture or Upload Your Serious Face Image")
+face_col1, face_col2 = st.columns(2)
+
+with face_col1:
+    uploaded_serious_face = st.file_uploader("Upload a serious face image", key="serious_face", type=["jpg", "jpeg", "png"])
+with face_col2:
+    if st.button("📸 Capture from Webcam", key="capture_serious"):
+        config.serious_face_image = capture_from_webcam_live_preview("Capturing FACE")
+
+if uploaded_serious_face is not None:
+    config.serious_face_image = read_image(uploaded_serious_face.read())
+
+if config.serious_face_image is not None:
+    st.image(cv2.cvtColor(config.serious_face_image, cv2.COLOR_BGR2RGB), caption="Face Image", use_container_width=True)
 
 # ---------------------------
 # Body image upload/capture
@@ -87,7 +172,7 @@ body_col1, body_col2 = st.columns(2)
 with body_col1:
     uploaded_body = st.file_uploader("Upload a body image", key="body", type=["jpg", "jpeg", "png"])
 with body_col2:
-    if st.button("📸 Capture Body from Webcam"):
+    if st.button("📸 Capture from Webcam", key="capture_body"):
         config.body_image = capture_from_webcam_live_preview("Capturing BODY")
 
 if uploaded_body is not None:
@@ -99,8 +184,8 @@ if config.body_image is not None:
 # ---------------------------
 # Placeholder for results (to be integrated)
 # ---------------------------
-if config.face_image is not None and config.body_image is not None:
-    st.success("Both images captured successfully!")
+if config.happy_face_image is not None and config.happy_face_image is not None and config.body_image is not None:
+    st.success("All three images captured successfully!")
     st.write(f"Selected Gender: **{config.gender}**")
 
     # MOCK CALL TO TEAMMATE FUNCTIONS (replace later)
