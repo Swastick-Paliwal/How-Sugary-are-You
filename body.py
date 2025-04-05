@@ -5,42 +5,18 @@ import numpy as np
 import math
 import config
 import random  # Import random for score variation
+import traceback  # Import traceback for error handling
 
 # Global variable for body metrics
 config.body_attractiveness = 0
 config.error_msg
 config.gender
 
-def try_camera_index(index):
-    """Try to open camera at specified index"""
-    print(f"Trying to open camera at index {index}...")
-    cap = cv2.VideoCapture(index)
-    if cap.isOpened():
-        print(f"Successfully opened camera at index {index}")
-        return cap
-    else:
-        print(f"Failed to open camera at index {index}")
-        return None
-
-# Try to find an available camera
-camera_found = False
-cap = None
-
-# Try different camera indices
-for i in range(3):  # Try indices 0, 1, and 2
-    cap = try_camera_index(i)
-    if cap is not None:
-        camera_found = True
-        break
-
-if not camera_found:
-    print("Error: Could not open any camera. Please check your camera connection or permissions.")
-    exit()
 
 # Set up MediaPipe Pose for body detection
 mp_pose = mp.solutions.pose
 mp_drawing = mp.solutions.drawing_utils
-pose = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5)
+pose = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.5)
 
 # Define landmark indices for easier reference
 NOSE = mp_pose.PoseLandmark.NOSE
@@ -193,112 +169,72 @@ error_color = (0, 0, 255)
 box_color = (0, 0, 0)
 box_alpha = 0.5
 
-try:
-    print("Camera opened successfully. Press 'q' to quit.")
+def analyze_image(image_path):
+    """Analyze a single image and return body metrics"""
+    frame = cv2.imread(image_path)
+    if frame is None:
+        raise Exception("Could not read the image")
     
-    while True:
-        # Capture frame-by-frame
-        ret, frame = cap.read()
-        if not ret:
-            print("Error: Failed to capture image")
-            break
-            
-        # Process with MediaPipe to detect body
-        results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    
+    if results.pose_landmarks:
+        # Draw pose landmarks
+        mp_drawing.draw_landmarks(
+            frame, 
+            results.pose_landmarks, 
+            mp_pose.POSE_CONNECTIONS
+        )
         
-        # Create overlay for text background
-        overlay = frame.copy()
+        landmarks = results.pose_landmarks.landmark
+        full_body_visible = True
         
-        if results.pose_landmarks:
-            # Draw pose landmarks
-            mp_drawing.draw_landmarks(
-                frame, 
-                results.pose_landmarks, 
-                mp_pose.POSE_CONNECTIONS
-            )
+        for keypoint in FULL_BODY_KEYPOINTS:
+            if landmarks[keypoint].visibility < 0.5:
+                full_body_visible = False
+                break
+        
+        if full_body_visible:
+            proportions = calculate_body_proportions(landmarks)
+            body_attractiveness = calculate_body_attractiveness(proportions)
+            body_attractiveness = max(60, min(100, int(body_attractiveness)))
             
-            # Check if full body is visible
-            landmarks = results.pose_landmarks.landmark
-            full_body_visible = True
-            missing_parts = []
-            
-            for keypoint in FULL_BODY_KEYPOINTS:
-                if landmarks[keypoint].visibility < 0.5:  # Slightly more forgiving threshold
-                    full_body_visible = False
-                    missing_parts.append(keypoint.name)
-            
-            if full_body_visible:
-                # Calculate body proportions
-                proportions = calculate_body_proportions(landmarks)
-                
-                # Calculate body metrics based on proportions
-                body_attractiveness = calculate_body_attractiveness(proportions)
-                
-                # Round the score to an integer
-                body_attractiveness = max(60, min(100, int(body_attractiveness)))
-                
-                # Draw semi-transparent box for text background
-                cv2.rectangle(overlay, (5, 5), (300, 150), box_color, -1)
-                cv2.addWeighted(overlay, box_alpha, frame, 1 - box_alpha, 0, frame)
-                
-                # Display attractiveness score with enhanced visual style
-                cv2.putText(frame, "BODY ANALYSIS", (10, 30), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.7, header_color, 2)
-                
-                # Score display with color based on score
-                score_color = (0, min(255, body_attractiveness * 2.55), min(255, (100 - body_attractiveness) * 2.55))
-                cv2.putText(frame, f"Score: {body_attractiveness}%", (10, 60), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.9, score_color, 2)
-                
-                # Display key ratios
-                cv2.putText(frame, f"Shoulder/Waist: {proportions['shoulder_to_waist_ratio']:.2f}", (10, 90), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
-                cv2.putText(frame, f"Waist/Hip: {proportions['waist_to_hip_ratio']:.2f}", (10, 120), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
-                
-            else:
-                # Draw semi-transparent box for error text background
-                cv2.rectangle(overlay, (5, 5), (300, 90), box_color, -1)
-                cv2.addWeighted(overlay, box_alpha, frame, 1 - box_alpha, 0, frame)
-                
-                # Display error about body not fully visible
-                cv2.putText(frame, "Body not fully visible", (10, 30), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.7, error_color, 2)
-                # List missing parts (limited to avoid cluttering the screen)
-                if missing_parts:
-                    missing_text = f"Missing: {', '.join([p.split('.')[-1] for p in missing_parts[:3]])}"
-                    if len(missing_parts) > 3:
-                        missing_text += "..."
-                    cv2.putText(frame, missing_text, (10, 60), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, error_color, 1)
-        else:
-            # Draw semi-transparent box for error text background
-            cv2.rectangle(overlay, (5, 5), (300, 40), box_color, -1)
+            # Draw results
+            overlay = frame.copy()
+            cv2.rectangle(overlay, (5, 5), (300, 150), box_color, -1)
             cv2.addWeighted(overlay, box_alpha, frame, 1 - box_alpha, 0, frame)
             
-            # No pose detected
-            cv2.putText(frame, "No person detected", (10, 30), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, error_color, 2)
-        
-        # Display the processed image
-        cv2.imshow('Body Analysis', frame)
-        
-        # Check for quit command (q key)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            print("Exiting program...")
-            break
+            cv2.putText(frame, "BODY ANALYSIS", (10, 30), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, header_color, 2)
             
-        # Small delay to reduce CPU usage
-        time.sleep(0.01)
+            score_color = (0, min(255, body_attractiveness * 2.55), 
+                         min(255, (100 - body_attractiveness) * 2.55))
+            cv2.putText(frame, f"Score: {body_attractiveness}%", (10, 60), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.9, score_color, 2)
             
-except Exception as e:
-    print(f"An error occurred: {e}")
-    import traceback
-    traceback.print_exc()
-    
-finally:
-    # Release resources
-    if cap is not None:
-        cap.release()
-    cv2.destroyAllWindows()
-    print(f"Final Body Metrics: {body_attractiveness}")
+            cv2.putText(frame, f"S/W Ratio: {proportions['shoulder_to_waist_ratio']:.2f}", 
+                       (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
+            cv2.putText(frame, f"W/H Ratio: {proportions['waist_to_hip_ratio']:.2f}", 
+                       (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.6, text_color, 1)
+            
+            cv2.imshow('Body Analysis', frame)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+            
+            return body_attractiveness
+        else:
+            print("Full body not visible in image")
+            return None
+    else:
+        print("No person detected in image")
+        return None
+
+if __name__ == "__main__":
+    try:
+        image_path = r"C:\\Users\\parvd\\OneDrive\\Desktop\\test2.jpg"  # Replace with your image path
+        score = analyze_image(image_path)
+        if score:
+            print(f"Body Score: {score}")
+        else:
+            print("Could not calculate body score")
+    except Exception as e:
+        print(f"Error analyzing image: {e}")
