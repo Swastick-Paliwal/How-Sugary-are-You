@@ -1,0 +1,9 @@
+[theme]
+primaryColor = "#f63366"
+backgroundColor = "#0f0f0f"
+secondaryBackgroundColor = "#1a1a1a"
+textColor = "#ffffff"
+font = "monospace"
+
+[ui]
+favicon = "assets/icon.png"
