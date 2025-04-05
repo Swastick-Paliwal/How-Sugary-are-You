@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sugahhhh - How Sugary Are You?</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(to bottom right, #1b1a3b, #30197d, #5f76e8);
+            color: white;
+            background-attachment: fixed;
+        }
+
+        .logo-bar {
+            display: flex;
+            align-items: center;
+            padding: 20px 30px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.2);
+            margin-right: 16px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .caption {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 8px;
+            color: #ddd;
+        }
+
+        .section {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            color: #ffdefc;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .gender-options label {
+            font-size: 17px;
+            margin-right: 20px;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #fff;
+            background-color: transparent;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 6px;
+        }
+
+        button {
+            background: linear-gradient(to right, #f584bc, #f97aa0);
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #ff3d94, #fa4d87);
+        }
+
+        .analyze-button {
+            margin-top: 20px;
+            font-size: 18px;
+            background: linear-gradient(to right, #ff80ab, #ff4081);
+        }
+
+        video {
+            background-color: transparent;
+        }
+
+        #results {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fce4ec;
+            margin-top: 20px;
+        }
+
+        .countdown-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 30px 60px;
+            font-size: 60px;
+            font-weight: bold;
+            border-radius: 16px;
+            z-index: 9999;
+            color: white;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-bar">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1>How 'Sugary' Are You? 😏</h1>
+    </div>
+
+    <p class="caption">Upload your pics or use the webcam to get an AI-generated attractiveness score!</p>
+
+    <div class="section">
+        <h2>Select your gender:</h2>
+        <div class="gender-options">
+            <label><input type="radio" name="gender" value="Male" checked> Male</label>
+            <label><input type="radio" name="gender" value="Female"> Female</label>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Capture or Upload Your Happy Face Image</h2>
+        <input type="file" id="happyFaceUpload">
+        <button onclick="captureImage('happy')">📸 Capture from Webcam</button>
+        <button onclick="skipImage('happy')">❌ Skip</button>
+        <video id="happyPreview" autoplay></video>
+        <canvas id="happyCanvas" style="display:none;"></canvas>
+    </div>
+
+    <div class="section">
+        <h2>Capture or Upload Your Serious Face Image</h2>
+        <input type="file" id="seriousFaceUpload">
+        <button onclick="captureImage('serious')">📸 Capture from Webcam</button>
+        <button onclick="skipImage('serious')">❌ Skip</button>
+        <video id="seriousPreview" autoplay></video>
+        <canvas id="seriousCanvas" style="display:none;"></canvas>
+    </div>
+
+    <div class="section">
+        <h2>Capture or Upload Your Body Image</h2>
+        <input type="file" id="bodyUpload">
+        <button onclick="captureImage('body')">📸 Capture from Webcam</button>
+        <button onclick="skipImage('body')">❌ Skip</button>
+        <video id="bodyPreview" autoplay></video>
+        <canvas id="bodyCanvas" style="display:none;"></canvas>
+    </div>
+
+    <div class="section">
+        <button class="analyze-button" onclick="analyzeImages()">Analyze My Attractiveness 🚀</button>
+        <div id="results"></div>
+    </div>
+
+    <div id="countdown" class="countdown-overlay" style="display:none;">5</div>
+
+    <script src="script.js"></script>
+</body>
+</html>

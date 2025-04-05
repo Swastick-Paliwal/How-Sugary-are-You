@@ -4,12 +4,12 @@ import numpy as np
 import time
 import config
 import base64
-import face
+# import face
 
 # Page setup
 st.set_page_config(page_title="Sugahhhh", layout="centered")
 st.title("How 'Sugary' are You 😏")
-st.caption("Upload your pics or use the webcam to get an AI-generated attractiveness score!")
+st.caption("Upload your best angles — the AI's ready to judge... respectfully 😘")
 
 def get_base64(file_path):
     with open(file_path, "rb") as f:
@@ -36,6 +36,27 @@ def place_logo():
     """, unsafe_allow_html=True)
 
 place_logo()
+
+st.markdown("""
+    <style>
+    /* Style the radio question label */
+    .stRadio > label {
+        font-size: 100px !important;
+        font-weight: bold;
+        color: white;
+        font-family: 'Comic Sans MS', cursive;
+    }
+
+    /* Style the individual radio options */
+    .stRadio div[role="radiogroup"] > label {
+        font-size: 18px !important;
+        color: red;
+        font-family: 'Courier New', monospace;
+        font-weight: 600;
+        padding-right: 15px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 st.markdown("""
     <style>
@@ -186,7 +207,7 @@ if config.body_image is not None:
 # Placeholder for results (to be integrated)
 # ---------------------------
 if config.happy_face_image is not None and config.happy_face_image is not None and config.body_image is not None:
-    face.main()
+    # face.main()
     st.success("All three images captured successfully!")
     st.write(f"Selected Gender: **{config.gender}**")
 
