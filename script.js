@@ -5,8 +5,8 @@ let capturedImages = {
     body: null
 };
 
-function showCountdown(duration, callback) {
-    const countdown = document.getElementById("countdown");
+function showCountdown(type, duration, callback) {
+    const countdown = document.getElementById(`${type}-countdown`);
     let current = duration;
 
     countdown.innerText = current;
@@ -17,7 +17,7 @@ function showCountdown(duration, callback) {
         if (current <= 0) {
             clearInterval(interval);
             countdown.style.display = "none";
-            callback(); // run capture logic
+            callback();
         } else {
             countdown.innerText = current;
         }
@@ -27,7 +27,6 @@ function showCountdown(duration, callback) {
 async function captureImage(type) {
     const video = document.getElementById(`${type}Preview`);
     const canvas = document.getElementById(`${type}Canvas`);
-    const countdown = document.getElementById("countdown");
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -37,35 +36,23 @@ async function captureImage(type) {
         video.play();
 
         // Wait a tiny bit for camera to warm up
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        // ✅ Begin countdown
-        let count = 1;
-        countdown.innerText = count;
-        countdown.style.display = "block";
+        // Use the modified showCountdown function
+        showCountdown(type, 5, () => {
+            // 🎯 Capture the frame
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            capturedImages[type] = canvas.toDataURL("image/png");
 
-        const countdownInterval = setInterval(() => {
-            count--;
-            if (count <= 0) {
-                clearInterval(countdownInterval);
-                countdown.style.display = "none";
+            // 🛑 Stop webcam
+            stream.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
 
-                // 🎯 Capture the frame
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                capturedImages[type] = canvas.toDataURL("image/png");
-
-                // 🛑 Stop webcam
-                stream.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
-
-                alert(`${type} image captured ✅`);
-            } else {
-                countdown.innerText = count;
-            }
-        }, 1000);
+            alert(`${type} image captured ✅`);
+        });
 
     } catch (err) {
         console.error("Webcam error: ", err);
@@ -113,29 +100,8 @@ function analyzeImages() {
 .then(response => response.json())
     .then(data => {
         // Calculate final score with weights
-        if (data.emotion_score || data.symmetry_score || data.body_score) {
-            const weights = {
-                emotion: 0.25,
-                symmetry: 0.375,
-                body: 0.375
-            };
-            
-            let totalWeight = 0;
-            let weightedSum = 0;
-            
-            if (data.emotion_score) {
-                weightedSum += data.emotion_score * weights.emotion;
-                totalWeight += weights.emotion;
-            }
-            if (data.symmetry_score) {
-                weightedSum += data.symmetry_score * weights.symmetry;
-                totalWeight += weights.symmetry;
-            }
-            if (data.body_score) {
-                weightedSum += data.body_score * weights.body;
-                totalWeight += weights.body;
-            }
-        }
+        data.final_score = 0.25*data.emotion_score + 0.375*data.symmetry_score + 0.375*data.body_score;
+
         resultDiv.innerHTML = `
             <div class="results-container">
                 <p>Gender: <strong>${gender}</strong></p>

@@ -154,27 +154,27 @@
 
     <div class="section">
         <h2>Capture or Upload Your Happy Face Image</h2>
+        <div class="countdown-overlay-section" id="happy-countdown"></div>
         <input type="file" id="happyFaceUpload">
         <button onclick="captureImage('happy')">📸 Capture from Webcam</button>
-        <button onclick="skipImage('happy')">❌ Skip</button>
         <video id="happyPreview" autoplay></video>
         <canvas id="happyCanvas" style="display:none;"></canvas>
     </div>
 
     <div class="section">
         <h2>Capture or Upload Your Serious Face Image</h2>
+        <div class="countdown-overlay-section" id="serious-countdown"></div>
         <input type="file" id="seriousFaceUpload">
         <button onclick="captureImage('serious')">📸 Capture from Webcam</button>
-        <button onclick="skipImage('serious')">❌ Skip</button>
         <video id="seriousPreview" autoplay></video>
         <canvas id="seriousCanvas" style="display:none;"></canvas>
     </div>
 
     <div class="section">
         <h2>Capture or Upload Your Body Image</h2>
+        <div class="countdown-overlay-section" id="body-countdown"></div>
         <input type="file" id="bodyUpload">
         <button onclick="captureImage('body')">📸 Capture from Webcam</button>
-        <button onclick="skipImage('body')">❌ Skip</button>
         <video id="bodyPreview" autoplay></video>
         <canvas id="bodyCanvas" style="display:none;"></canvas>
     </div>
@@ -183,8 +183,6 @@
         <button class="analyze-button" onclick="analyzeImages()">Analyze My Attractiveness 🚀</button>
         <div id="results"></div>
     </div>
-
-    <div id="countdown" class="countdown-overlay" style="display:none;">5</div>
 
     <script src="script.js"></script>
 </body>
