@@ -53,7 +53,7 @@ def linear_score(normalized_error, min_error=0.26, max_error=0.36):
     return max(50, min(score, 100))
 
 
-def get_symmetry_score(image, frame=None, draw=True, curve_sharpness=8, curve_offset=0.02):
+def get_symmetry_score(image, frame=None, draw=False, curve_sharpness=8, curve_offset=0.02):
     try:
         face_landmarks_list = face_recognition.face_landmarks(image)
         if not face_landmarks_list:
@@ -121,13 +121,13 @@ def main():
 
     #load image from file
     # file_path = 'test_faces/smile/1.jpg' 
+
     image = config.happy_face_image
     frame = image
 
     emotion_score = get_emotion_score(image)
-    symmetry_score = get_symmetry_score(image, frame, draw=True)
+    symmetry_score = get_symmetry_score(image, frame, draw=False)
     config.emotion_score = 0.85 * emotion_score + 0.15 * (symmetry_score + 20)
-    # config.face_attractiveness = face_score
 
     # # Add score text and display
     # cv2.putText(frame, f"Attractiveness: {int(config.emotion_score)}%", (50, 50), 

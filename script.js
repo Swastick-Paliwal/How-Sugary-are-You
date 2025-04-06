@@ -110,14 +110,39 @@ function analyzeImages() {
         },
         body: JSON.stringify(imageData)
     })
-    .then(response => response.json())
+.then(response => response.json())
     .then(data => {
+        // Calculate final score with weights
+        if (data.emotion_score || data.symmetry_score || data.body_score) {
+            const weights = {
+                emotion: 0.25,
+                symmetry: 0.375,
+                body: 0.375
+            };
+            
+            let totalWeight = 0;
+            let weightedSum = 0;
+            
+            if (data.emotion_score) {
+                weightedSum += data.emotion_score * weights.emotion;
+                totalWeight += weights.emotion;
+            }
+            if (data.symmetry_score) {
+                weightedSum += data.symmetry_score * weights.symmetry;
+                totalWeight += weights.symmetry;
+            }
+            if (data.body_score) {
+                weightedSum += data.body_score * weights.body;
+                totalWeight += weights.body;
+            }
+        }
         resultDiv.innerHTML = `
             <div class="results-container">
                 <p>Gender: <strong>${gender}</strong></p>
-                ${data.emotion_score ? `<p>😊 Emotion Score: <strong>${data.emotion_score}%</strong></p>` : ''}
-                ${data.symmetry_score ? `<p>✨ Symmetry Score: <strong>${data.symmetry_score}%</strong></p>` : ''}
-                ${data.body_score ? `<p>💪 Body Score: <strong>${data.body_score}%</strong></p>` : ''}
+                ${data.emotion_score ? `<p>😊 Vibes: <strong>${data.emotion_score}%</strong></p>` : ''}
+                ${data.symmetry_score ? `<p>✨ Crystal Face: <strong>${data.symmetry_score}%</strong></p>` : ''}
+                ${data.body_score ? `<p>💪 Bigger Picture: <strong>${data.body_score}%</strong></p>` : ''}
+                ${data.final_score ? `<p>🌟 Sugahh level: <strong>${data.final_score}%</strong></p>` : ''}
                 ${data.error_msg ? `<p class="error">${data.error_msg}</p>` : ''}
             </div>
         `;

@@ -83,11 +83,11 @@ def main():
 
     # #load image from file
     # # file_path = 'test_faces/smile/1.jpg' 
+
     image = config.serious_face_image
     frame = image
 
     config.symmetry_score = get_symmetry_score(image, frame, draw=True)
-    # config.face_attractiveness = face_score
 
     # # Add score text and display
     # cv2.putText(frame, f"Attractiveness: {int(config.emotion_score)}%", (50, 50), 
