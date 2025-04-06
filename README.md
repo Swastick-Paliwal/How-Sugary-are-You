@@ -70,11 +70,9 @@ pip install opencv-python mediapipe deepface face_recognition numpy flask
 ```bash
 python server.py
 ```
+### 3. Launch the webapp
 
-### 3. Open in Browser:
-```
-http://127.0.0.1:5000/
-```
+Use the Live Server extension for vscode by Ritwick Dey and go live with index.htm
 
 ---
 
